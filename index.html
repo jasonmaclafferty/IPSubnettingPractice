@@ -3,24 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <title>Subnetting Practice!</title>
-    <script type="application/dart" src="index.dart"></script>
+    <script type="application/dart" src="src/index.dart"></script>
 </head>
 <body>
     <h1>Subnetting Practice!</h1>
 
     <div>
-        <div>
-            <label style="float: left;">IP Address:&nbsp;</label> <div id="IPAddress" title="IP Address" style="float: left;"></div>
+        <div style="clear: both;">
+            <label style="float: left;">IP Address:&nbsp;</label>
+
+            <div id="IPAddress" style="float: left;"></div>
         </div>
-        <div style="clear: both">
-            <label style="float: left;">Number Of Subnets:&nbsp;</label> <div id="numOfSubnets" style="float: left;
-            "title="Number Of Subnets To Create"></div>
+
+        <div style="clear: both;">
+            <label style="float: left;" for="numOfIPAddrs">Number of IP Addresses:&nbsp;</label>
+            <input style="float: left;" id="numOfIPAddrs">
         </div>
-        <div style="clear: both;"></div>
-        <button id="btnGenerateNewProblem">Generate A New Problem</button>
+
+        <div style="clear: both;">
+            <label style="float: left;" for="broadcastAddr">Broadcast Address:&nbsp;</label>
+            <input style="float: left;" id="broadcastAddr">
+        </div>
+
+        <div style="clear: both;">
+            <label style="float: left;" for="networkAddr">Network Address:&nbsp;</label>
+            <input style="float: left;" id="networkAddr">
+        </div>
+
+        <div style="clear: both;">
+            <br><label style="float: left;">Number of Subnets to Create:&nbsp;</label>
+
+            <div id="numOfSubnets" style="float: left;"></div>
+        </div>
     </div>
     <br>
     <div id="Subnets"></div>
+    <br>
+    <button id="btnGenerateNewProblem">Generate A New Problem</button>
     <br>
     <button id="btnCheckAnswers" style="display: none;">Check Answers</button>
 </body>
