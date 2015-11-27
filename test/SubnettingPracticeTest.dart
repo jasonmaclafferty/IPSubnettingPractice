@@ -1,7 +1,8 @@
 library SubnettingPracticeTest;
 
-import '../src/SubnettingPractice.dart';
 import 'package:test/test.dart';
+
+import '../src/SubnettingPractice.dart';
 
 void main()
 {
@@ -75,17 +76,34 @@ void main()
       expect(sumOfListElements(generateListOfSubnetSizes(4096, 3)),
           lessThanOrEqualTo(4096));
     });
+
     test('Test1',
         ()
     {
       expect(sumOfListElements(generateListOfSubnetSizes(8192, 5)),
           lessThanOrEqualTo(8192));
     });
+
     test('Test2',
         ()
     {
       expect(sumOfListElements(generateListOfSubnetSizes(512, 6)),
           lessThanOrEqualTo(512));
     });
+
+    test('Test3', () { expect( sumOfListElements( generateListOfSubnetSizes(65536, 3) ), lessThanOrEqualTo(65536) ); });
+
+    test('Test4', () { expect( generateListOfSubnetSizes(65536, 3), everyElement((num) => num % 16 == 0) ); });
+
+    test('Test5', () { expect( generateListOfSubnetSizes(8192, 5), everyElement((num) => num % 16 == 0) ); });
+
+    test('Test6', () { expect( generateListOfSubnetSizes(512, 2), everyElement((num) => num % 16 == 0) ); });
+
+    test('Test7', () { expect( generateListOfSubnetSizes(4096, 4), everyElement((num) => num % 16 == 0) ); });
+  });
+
+  group('checkSubnetAddresses()', ()
+  {
+
   });
 }
