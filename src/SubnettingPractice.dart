@@ -15,16 +15,16 @@ int generateRandomNumber(int lowerBound, int upperBound)
 
 bool checkAnswers(String ipAddrStr, String userEnteredBroadcastAddr, String userEnteredNetworkAddr, String userEnteredNumOfIPs)
 {
-  bool answersAreCorrect = false;
-  List<String> ipAddrAndMask = ipAddrStr.split('/');
-  int ipAddress = convertDottedIPAddressStringToInteger(ipAddrAndMask[0]);
-  int subnetMask = int.parse(ipAddrAndMask[1]);
-  int correctNumOfIPs = pow(2, 32 - subnetMask);
-  int networkAddrMask = (0xFFFFFFFF >> (32 - subnetMask)) << (32 - subnetMask);
-  int correctNetworkAddr = ipAddress & networkAddrMask;
-  int correctBroadcastAddr = ipAddress | (0xFFFFFFFF >> subnetMask);
-  int userEnteredBroadcastAddrInt = convertDottedIPAddressStringToInteger(userEnteredBroadcastAddr);
-  int userEnteredNetworkAddrInt = convertDottedIPAddressStringToInteger(userEnteredNetworkAddr);
+  bool answersAreCorrect            =   false;
+  List<String> ipAddrAndMask        =   ipAddrStr.split('/');
+  int ipAddress                     =   convertDottedIPAddressStringToInteger(ipAddrAndMask[0]);
+  int subnetMask                    =   int.parse(ipAddrAndMask[1]);
+  int correctNumOfIPs               =   pow(2, 32 - subnetMask);
+  int networkAddrMask               =   (0xFFFFFFFF >> (32 - subnetMask)) << (32 - subnetMask);
+  int correctNetworkAddr            =   ipAddress & networkAddrMask;
+  int correctBroadcastAddr          =   ipAddress | (0xFFFFFFFF >> subnetMask);
+  int userEnteredBroadcastAddrInt   =   convertDottedIPAddressStringToInteger(userEnteredBroadcastAddr);
+  int userEnteredNetworkAddrInt     =   convertDottedIPAddressStringToInteger(userEnteredNetworkAddr);
 
   if (int.parse(userEnteredNumOfIPs) == correctNumOfIPs &&
       userEnteredBroadcastAddrInt == correctBroadcastAddr
@@ -37,12 +37,12 @@ bool checkAnswers(String ipAddrStr, String userEnteredBroadcastAddr, String user
 
 int convertDottedIPAddressStringToInteger(String dottedIPAddressString)
 {
-  List<String> ipAddressComponents = dottedIPAddressString.split('.');
-  int ipAddrFirstByte = int.parse(ipAddressComponents[0]) << 24;
-  int ipAddrSecondByte = int.parse(ipAddressComponents[1]) << 16;
-  int ipAddrThirdByte = int.parse(ipAddressComponents[2]) << 8;
-  int ipAddrFourthByte = int.parse(ipAddressComponents[3]);
-  int ipAddress = ipAddrFourthByte + ipAddrThirdByte + ipAddrSecondByte + ipAddrFirstByte;
+  List<String> ipAddressComponents    =   dottedIPAddressString.split('.');
+  int ipAddrFirstByte                 =   int.parse(ipAddressComponents[0]) << 24;
+  int ipAddrSecondByte                =   int.parse(ipAddressComponents[1]) << 16;
+  int ipAddrThirdByte                 =   int.parse(ipAddressComponents[2]) << 8;
+  int ipAddrFourthByte                =   int.parse(ipAddressComponents[3]);
+  int ipAddress                       =   ipAddrFourthByte + ipAddrThirdByte + ipAddrSecondByte + ipAddrFirstByte;
 
   return ipAddress;
 }
@@ -83,7 +83,36 @@ int sumOfListElements(List<int> list)
 
 List<bool> checkSubnetAddresses(List<String> userEnteredSubnetAddresses)
 {
-  List<bool> subnetsAreCorrect = new List<bool>(userEnteredSubnetAddresses.length);
+  List<bool> subnetsAreCorrect                        =   new List<bool>(userEnteredSubnetAddresses.length);
+  List<List<int>> networkAndBroadcastAddrs            =   new List<List<int>>(); // [ [subnetNumber, networkAddr, BroadcastAddr], ... ]
+  List<List<String>> allUserEnteredSubnetAddresses    =   new List<List<String>>(); // [ ['0', 'address0/mask'], ['0', 'address1/mask'], ['1', 'address2/mask'], ['2', 'address3/mask'] ]
+  List<String> addressesPerSubnet, addressAndMask;
+
+  int subnetCtr = 0;
+  for (String subnet in userEnteredSubnetAddresses)
+  {
+    addressesPerSubnet = subnet.split(' ');
+    if (addressesPerSubnet == [''])
+      addressesPerSubnet = subnet.split(',');
+    if (addressesPerSubnet == [''])
+      allUserEnteredSubnetAddresses.add([subnetCtr.toString(), subnet]);
+    else
+      addressesPerSubnet.forEach((subnetAddr) => allUserEnteredSubnetAddresses.add([subnetCtr.toString(), subnetAddr]));
+
+    subnetCtr++;
+  }
+
+  int networkAddr = 0, broadcastAddr = 0, address = 0, mask = 0, subnetNum = 0;
+  for (int subnetAddrPos = 0; subnetAddrPos < allUserEnteredSubnetAddresses.length; subnetAddrPos++)
+  {
+    addressAndMask    =   allUserEnteredSubnetAddresses[subnetAddrPos][1].split('/'); // get subnet address and mask
+    mask              =   int.parse(addressAndMask[1]);
+    address           =   convertDottedIPAddressStringToInteger(addressAndMask[0]);
+    networkAddr       =   address & ((0xFFFFFFFF >> (32 - mask)) << (32 - mask));
+    broadcastAddr     =   address | (0xFFFFFFFF >> mask);
+    subnetNum         =   int.parse(allUserEnteredSubnetAddresses[subnetAddrPos][0]);
+    networkAndBroadcastAddrs.add([subnetNum, networkAddr, broadcastAddr]);
+  }
 
   return subnetsAreCorrect;
 }

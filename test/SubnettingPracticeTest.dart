@@ -104,6 +104,13 @@ void main()
 
   group('checkSubnetAddresses()', ()
   {
+    test('Test0', () { expect( checkSubnetAddresses(['128.64.0.0/23', '128.64.2.0/26', '128.64.3.0/28']), equals([true, true, true]) ); });
 
+    test('Test1', () { expect( checkSubnetAddresses(['128.64.0.0/23', '128.64.1.0/26', '128.64.3.0/28']), equals([false, false, true]) ); });
+
+    test('Test2', () { expect( checkSubnetAddresses(['0.0.0.0/23', '128.64.1.0/26', '128.64.3.0/28']), equals([false, false, true]) ); });
+
+    test('Test3', () { expect( checkSubnetAddresses(['128.64.0.0/23', '128.64.2.0/26', '128.64.3.0/28', '128.64.2.64/26, 128.64.3.128/28']),
+         equals([true, true, true]) ); });
   });
 }
