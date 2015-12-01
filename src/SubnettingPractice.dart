@@ -84,6 +84,8 @@ int sumOfListElements(List<int> list)
 List<bool> checkSubnetAddresses(List<String> userEnteredSubnetAddresses)
 {
   List<bool> subnetsAreCorrect                        =   new List<bool>(userEnteredSubnetAddresses.length);
+  for (int subnetsAreCorrectPos = 0; subnetsAreCorrectPos <  userEnteredSubnetAddresses.length; subnetsAreCorrectPos++)
+    subnetsAreCorrect[subnetsAreCorrectPos] = true; // initialize everything to true
   List<List<int>> networkAndBroadcastAddrs            =   new List<List<int>>(); // [ [subnetNumber, networkAddr, BroadcastAddr], ... ]
   List<List<String>> allUserEnteredSubnetAddresses    =   new List<List<String>>(); // [ ['0', 'address0/mask'], ['0', 'address1/mask'], ['1', 'address2/mask'], ['2', 'address3/mask'] ]
   List<String> addressesPerSubnet, addressAndMask;
@@ -91,9 +93,12 @@ List<bool> checkSubnetAddresses(List<String> userEnteredSubnetAddresses)
   int subnetCtr = 0;
   for (String subnet in userEnteredSubnetAddresses)
   {
-    addressesPerSubnet = subnet.split(' ');
+    /* lines 95-103 seem to work correctly, but I do not think that this is the best way to do this. */
+    addressesPerSubnet = subnet.split(', ');
     if (addressesPerSubnet == [''])
       addressesPerSubnet = subnet.split(',');
+    if (addressesPerSubnet == [''])
+      addressesPerSubnet = subnet.split(' ');
     if (addressesPerSubnet == [''])
       allUserEnteredSubnetAddresses.add([subnetCtr.toString(), subnet]);
     else
@@ -102,17 +107,24 @@ List<bool> checkSubnetAddresses(List<String> userEnteredSubnetAddresses)
     subnetCtr++;
   }
 
-  int networkAddr = 0, broadcastAddr = 0, address = 0, mask = 0, subnetNum = 0;
+  int networkAddr = 0, broadcastAddr = 0, address = 0, subnetMask = 0, subnetNum = 0;
   for (int subnetAddrPos = 0; subnetAddrPos < allUserEnteredSubnetAddresses.length; subnetAddrPos++)
   {
     addressAndMask    =   allUserEnteredSubnetAddresses[subnetAddrPos][1].split('/'); // get subnet address and mask
-    mask              =   int.parse(addressAndMask[1]);
+    subnetMask        =   int.parse(addressAndMask[1]);
     address           =   convertDottedIPAddressStringToInteger(addressAndMask[0]);
-    networkAddr       =   address & ((0xFFFFFFFF >> (32 - mask)) << (32 - mask));
-    broadcastAddr     =   address | (0xFFFFFFFF >> mask);
+    networkAddr       =   address & ((0xFFFFFFFF >> (32 - subnetMask)) << (32 - subnetMask));
+    broadcastAddr     =   address | (0xFFFFFFFF >> subnetMask);
     subnetNum         =   int.parse(allUserEnteredSubnetAddresses[subnetAddrPos][0]);
     networkAndBroadcastAddrs.add([subnetNum, networkAddr, broadcastAddr]);
   }
+
+  // sort by network address so that we can see if the user entered subnet addresses overlap or not.
+  networkAndBroadcastAddrs.sort((list0, list1) => list0[1].compareTo(list1[1]));
+
+  for (int addrPos = 0; addrPos < networkAndBroadcastAddrs.length - 1; addrPos++)
+    if (networkAndBroadcastAddrs[addrPos][2] >= networkAndBroadcastAddrs[addrPos + 1][1])
+      subnetsAreCorrect[networkAndBroadcastAddrs[addrPos][0]] = false;
 
   return subnetsAreCorrect;
 }

@@ -101,16 +101,19 @@ void main()
 
     test('Test7', () { expect( generateListOfSubnetSizes(4096, 4), everyElement((num) => num % 16 == 0) ); });
   });
-
   group('checkSubnetAddresses()', ()
   {
     test('Test0', () { expect( checkSubnetAddresses(['128.64.0.0/23', '128.64.2.0/26', '128.64.3.0/28']), equals([true, true, true]) ); });
 
-    test('Test1', () { expect( checkSubnetAddresses(['128.64.0.0/23', '128.64.1.0/26', '128.64.3.0/28']), equals([false, false, true]) ); });
+    test('Test1', () { expect( checkSubnetAddresses(['128.64.0.0/23', '128.64.1.0/26', '128.64.3.0/28']), equals([false, true, true]) ); });
 
-    test('Test2', () { expect( checkSubnetAddresses(['0.0.0.0/23', '128.64.1.0/26', '128.64.3.0/28']), equals([false, false, true]) ); });
+    test('Test2', () { expect( checkSubnetAddresses(['0.0.0.0/23', '128.64.1.0/26', '128.64.3.0/28']), equals([true, true, true]) ); });
 
     test('Test3', () { expect( checkSubnetAddresses(['128.64.0.0/23', '128.64.2.0/26', '128.64.3.0/28', '128.64.2.64/26, 128.64.3.128/28']),
-         equals([true, true, true]) ); });
+         equals([true, true, true, true]) ); });
+
+    test('Test4', () { expect( checkSubnetAddresses(['192.64.16.8/18', '192.65.16.8/22']), equals([true, true]) ); });
+
+    test('Test5', () { expect( checkSubnetAddresses(['192.65.16.8/18', '192.65.16.8/22']), equals([false, true]) ); });
   });
 }

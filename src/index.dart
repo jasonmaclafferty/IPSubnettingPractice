@@ -18,6 +18,7 @@ void main()
     int subnetMask              =   generateRandomNumber(16, 29);
     String IPAddressStr         =   IPAddressFirstByte.toString() + '.' + IPAddressSecondByte.toString() + '.'
         + IPAddressThirdByte.toString() + '.' + IPAddressFourthByte.toString() + '/' + subnetMask.toString();
+    //String IPAddressStr = '128.64.0.0/16';
     numOfSubnets                =   generateRandomNumber(3, 6);
     querySelector('#IPAddress').setInnerHtml(IPAddressStr);
     querySelector('#numOfSubnets').setInnerHtml(numOfSubnets.toString());
@@ -54,9 +55,20 @@ void main()
     /* clear input when answers are correct */
     if (userEnteredAnswersAreCorrect)
     {
-      (querySelector('#broadcastAddr') as TextInputElement).value   =   '';
-      (querySelector('#networkAddr') as TextInputElement).value     =   '';
-      (querySelector('#numOfIPAddrs') as TextInputElement).value    =   '';
+      (querySelector('#broadcastAddr') as TextInputElement).value               =   '';
+      (querySelector('#networkAddr') as TextInputElement).value                 =   '';
+      (querySelector('#numOfIPAddrs') as TextInputElement).value                =   '';
+      (querySelector('#broadcastAddr') as TextInputElement).style.background    =   'green';
+      (querySelector('#networkAddr') as TextInputElement).style.background      =   'green';
+      (querySelector('#numOfIPAddrs') as TextInputElement).style.background     =   'green';
+    }
+
+    for (int subnetPos = 0; subnetPos < numOfSubnets; subnetPos++)
+    {
+      if (userEnteredSubnetAddrsAreCorrect[subnetPos])
+        querySelector('#subnetAddrField$subnetPos').style.background    =   'green';
+      else
+        querySelector('#subnetAddrField$subnetPos').style.background    =   'red';
     }
   });
 }
