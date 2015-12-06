@@ -58,17 +58,23 @@ void main()
       (querySelector('#broadcastAddr') as TextInputElement).value               =   '';
       (querySelector('#networkAddr') as TextInputElement).value                 =   '';
       (querySelector('#numOfIPAddrs') as TextInputElement).value                =   '';
-      (querySelector('#broadcastAddr') as TextInputElement).style.background    =   'green';
-      (querySelector('#networkAddr') as TextInputElement).style.background      =   'green';
-      (querySelector('#numOfIPAddrs') as TextInputElement).style.background     =   'green';
+      (querySelector('#broadcastAddr') as TextInputElement).style.setProperty('background-color', 'lime');
+      (querySelector('#networkAddr') as TextInputElement).style.setProperty('background-color', 'lime');
+      (querySelector('#numOfIPAddrs') as TextInputElement).style.setProperty('background-color', 'lime');
+    }
+    else
+    {
+      (querySelector('#broadcastAddr') as TextInputElement).style.setProperty('background-color', 'red');
+      (querySelector('#networkAddr') as TextInputElement).style.setProperty('background-color', 'red');
+      (querySelector('#numOfIPAddrs') as TextInputElement).style.setProperty('background-color', 'red');
     }
 
     for (int subnetPos = 0; subnetPos < numOfSubnets; subnetPos++)
     {
       if (userEnteredSubnetAddrsAreCorrect[subnetPos])
-        querySelector('#subnetAddrField$subnetPos').style.background    =   'green';
+        querySelector('#subnetAddrField$subnetPos').style.setProperty('background-color', 'lime');
       else
-        querySelector('#subnetAddrField$subnetPos').style.background    =   'red';
+        querySelector('#subnetAddrField$subnetPos').style.setProperty('background-color', 'red');
     }
   });
 }
