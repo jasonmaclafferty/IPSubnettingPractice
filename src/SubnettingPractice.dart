@@ -7,15 +7,14 @@ int generateRandomNumber(int lowerBound, int upperBound)
 {
   Random randNumGenerator = new Random();
   int randomNumber = randNumGenerator.nextInt(upperBound);
-  while (randomNumber < lowerBound)
-    randomNumber = randNumGenerator.nextInt(upperBound);
+  randomNumber = randomNumber < lowerBound ? lowerBound : randomNumber;
 
   return randomNumber;
 }
 
-bool checkAnswers(String ipAddrStr, String userEnteredBroadcastAddr, String userEnteredNetworkAddr, String userEnteredNumOfIPs)
+List<bool> checkAnswers(String ipAddrStr, String userEnteredBroadcastAddr, String userEnteredNetworkAddr, String userEnteredNumOfIPs)
 {
-  bool answersAreCorrect            =   false;
+  List<bool> answersAreCorrect      =   [false, false, false];
   List<String> ipAddrAndMask        =   ipAddrStr.split('/');
   int ipAddress                     =   convertDottedIPAddressStringToInteger(ipAddrAndMask[0]);
   int subnetMask                    =   int.parse(ipAddrAndMask[1]);
@@ -26,12 +25,14 @@ bool checkAnswers(String ipAddrStr, String userEnteredBroadcastAddr, String user
   int userEnteredBroadcastAddrInt   =   convertDottedIPAddressStringToInteger(userEnteredBroadcastAddr);
   int userEnteredNetworkAddrInt     =   convertDottedIPAddressStringToInteger(userEnteredNetworkAddr);
 
-  if (int.parse(userEnteredNumOfIPs) == correctNumOfIPs &&
-      userEnteredBroadcastAddrInt == correctBroadcastAddr
-      && userEnteredNetworkAddrInt == correctNetworkAddr)
-    answersAreCorrect = true;
+  if (int.parse(userEnteredNumOfIPs) == correctNumOfIPs)
+    answersAreCorrect[0] = true;
+  if(userEnteredBroadcastAddrInt == correctBroadcastAddr)
+    answersAreCorrect[1] = true;
+  if(userEnteredNetworkAddrInt == correctNetworkAddr)
+    answersAreCorrect[2] = true;
 
-  return answersAreCorrect; // a boolean indicating whether or not the user-entered number of IPs, network Address
+  return answersAreCorrect; // a list of booleans indicating whether or not the user-entered number of IPs, network Address
   // and broadcast address are correct
 }
 
@@ -56,17 +57,26 @@ List<int> generateListOfSubnetSizes(int numOfAllocatedIPAddresses, int numOfSubn
   while (!done)
   {
     if (subnetSizes.every((num) => num > 0))
-      if (sumOfListElements(subnetSizes) <= numOfAllocatedIPAddresses)
-        done = true;
-      else if (subnetCtr > numOfSubnets - 1)
-        subnetCtr = 0;
-    if (subnetCtr < numOfSubnets)
     {
-      randNum = generateRandomNumber(16, numOfAllocatedIPAddresses ~/ numOfSubnets);
-      if (sumOfListElements(subnetSizes) > numOfAllocatedIPAddresses || !subnetSizes.every((num) => num > 0))
-        subnetSizes[subnetCtr] = randNum + (16 - (randNum % 16));
-      subnetCtr++;
+      if (sumOfListElements(subnetSizes) <= numOfAllocatedIPAddresses)
+      {
+        done = true;
+      }
     }
+    if (subnetCtr > numOfSubnets - 1)
+        subnetCtr = 0;
+    if (numOfAllocatedIPAddresses > 140)
+    {
+      randNum                   =   generateRandomNumber(16, numOfAllocatedIPAddresses ~/ numOfSubnets);
+      subnetSizes[subnetCtr]    =   randNum + (16 - (randNum % 16));
+    }
+    else
+    {
+      randNum                   =   generateRandomNumber(2, numOfAllocatedIPAddresses ~/ numOfSubnets);
+      subnetSizes[subnetCtr]    =   randNum;
+    }
+
+    subnetCtr++;
   }
 
   return subnetSizes;

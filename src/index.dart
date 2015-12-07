@@ -5,7 +5,7 @@ import 'SubnettingPractice.dart';
 
 void main()
 {
-  int numOfSubnets;
+  int numOfSubnets = 0;
   List<int> subnetSizes;
   querySelector('#btnGenerateNewProblem').onClick.listen((MouseEvent event)
   {
@@ -18,7 +18,6 @@ void main()
     int subnetMask              =   generateRandomNumber(16, 29);
     String IPAddressStr         =   IPAddressFirstByte.toString() + '.' + IPAddressSecondByte.toString() + '.'
         + IPAddressThirdByte.toString() + '.' + IPAddressFourthByte.toString() + '/' + subnetMask.toString();
-    //String IPAddressStr = '128.64.0.0/16';
     numOfSubnets                =   generateRandomNumber(3, 6);
     querySelector('#IPAddress').setInnerHtml(IPAddressStr);
     querySelector('#numOfSubnets').setInnerHtml(numOfSubnets.toString());
@@ -38,6 +37,9 @@ void main()
     (querySelector('#broadcastAddr') as TextInputElement).value   =   '';
     (querySelector('#networkAddr') as TextInputElement).value     =   '';
     (querySelector('#numOfIPAddrs') as TextInputElement).value    =   '';
+    (querySelector('#broadcastAddr') as TextInputElement).style.setProperty('background-color', 'inherit');
+    (querySelector('#networkAddr') as TextInputElement).style.setProperty('background-color', 'inherit');
+    (querySelector('#numOfIPAddrs') as TextInputElement).style.setProperty('background-color', 'inherit');
   });
 
   querySelector('#btnCheckAnswers').onClick.listen((MouseEvent)
@@ -46,35 +48,33 @@ void main()
     String userEnteredBroadcastAddr               =   (querySelector('#broadcastAddr') as TextInputElement).value;
     String userEnteredNetworkAddr                 =   (querySelector('#networkAddr') as TextInputElement).value;
     String userEnteredNumOfIPs                    =   (querySelector('#numOfIPAddrs') as TextInputElement).value;
-    bool userEnteredAnswersAreCorrect             =   checkAnswers(IPAddress, userEnteredBroadcastAddr, userEnteredNetworkAddr, userEnteredNumOfIPs);
+    List<bool> userEnteredAnswersAreCorrect       =   checkAnswers(IPAddress, userEnteredBroadcastAddr, userEnteredNetworkAddr, userEnteredNumOfIPs);
     List<String> userEnteredSubnetAddresses       =   new List<String>(numOfSubnets);
     for (int subnetPos = 0; subnetPos < numOfSubnets; subnetPos++)
       userEnteredSubnetAddresses[subnetPos] = (querySelector('#subnetAddrField${subnetPos + 1}') as TextInputElement).value;
     List<bool> userEnteredSubnetAddrsAreCorrect   =   checkSubnetAddresses(userEnteredSubnetAddresses);
-    window.alert('User input is correct: $userEnteredAnswersAreCorrect');
-    /* clear input when answers are correct */
-    if (userEnteredAnswersAreCorrect)
-    {
-      (querySelector('#broadcastAddr') as TextInputElement).value               =   '';
-      (querySelector('#networkAddr') as TextInputElement).value                 =   '';
-      (querySelector('#numOfIPAddrs') as TextInputElement).value                =   '';
+
+    if (userEnteredAnswersAreCorrect[2])
       (querySelector('#broadcastAddr') as TextInputElement).style.setProperty('background-color', 'lime');
-      (querySelector('#networkAddr') as TextInputElement).style.setProperty('background-color', 'lime');
-      (querySelector('#numOfIPAddrs') as TextInputElement).style.setProperty('background-color', 'lime');
-    }
     else
-    {
       (querySelector('#broadcastAddr') as TextInputElement).style.setProperty('background-color', 'red');
+
+    if (userEnteredAnswersAreCorrect[1])
+      (querySelector('#networkAddr') as TextInputElement).style.setProperty('background-color', 'lime');
+    else
       (querySelector('#networkAddr') as TextInputElement).style.setProperty('background-color', 'red');
+
+    if (userEnteredAnswersAreCorrect[0])
+      (querySelector('#numOfIPAddrs') as TextInputElement).style.setProperty('background-color', 'lime');
+    else
       (querySelector('#numOfIPAddrs') as TextInputElement).style.setProperty('background-color', 'red');
-    }
 
     for (int subnetPos = 0; subnetPos < numOfSubnets; subnetPos++)
     {
       if (userEnteredSubnetAddrsAreCorrect[subnetPos])
-        querySelector('#subnetAddrField$subnetPos').style.setProperty('background-color', 'lime');
+        querySelector('#subnetAddrField${subnetPos + 1}').style.setProperty('background-color', 'lime');
       else
-        querySelector('#subnetAddrField$subnetPos').style.setProperty('background-color', 'red');
+        querySelector('#subnetAddrField${subnetPos + 1}').style.setProperty('background-color', 'red');
     }
   });
 }
