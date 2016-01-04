@@ -21,9 +21,10 @@ import 'dart:math';
 // returns a random number in the range [lowerBound, upperBound) (from lowerBound inclusive to upperBound exclusive)
 int generateRandomNumber(int lowerBound, int upperBound)
 {
-  Random randNumGenerator = new Random();
-  int randomNumber = randNumGenerator.nextInt(upperBound);
-  randomNumber = randomNumber < lowerBound ? lowerBound : randomNumber;
+  Random randNumGenerator   =   new Random();
+  int randomNumber          =   randNumGenerator.nextInt(upperBound);
+  while (randomNumber < lowerBound)
+    randomNumber = randNumGenerator.nextInt(upperBound);
 
   return randomNumber;
 }
@@ -107,25 +108,20 @@ int sumOfListElements(List<int> list)
   return sum;
 }
 
-List<bool> checkSubnetAddresses(List<String> userEnteredSubnetAddresses)
+void buildListOfAllUserEnteredSubnetAddresses(List<String> userEnteredSubnetAddresses,
+                                              List<List<String>> allUserEnteredSubnetAddresses)
 {
-  List<bool> subnetsAreCorrect                        =   new List<bool>(userEnteredSubnetAddresses.length);
-  for (int subnetsAreCorrectPos = 0; subnetsAreCorrectPos <  userEnteredSubnetAddresses.length; subnetsAreCorrectPos++)
-    subnetsAreCorrect[subnetsAreCorrectPos] = true; // initialize everything to true
-  List<List<int>> networkAndBroadcastAddrs            =   new List<List<int>>(); // [ [subnetNumber, networkAddr, BroadcastAddr], ... ]
-  List<List<String>> allUserEnteredSubnetAddresses    =   new List<List<String>>(); // [ ['0', 'address0/mask'], ['0', 'address1/mask'], ['1', 'address2/mask'], ['2', 'address3/mask'] ]
-  List<String> addressesPerSubnet, addressAndMask;
-
+  // build a list of all user entered subnet addresses
+  List<String> addressesPerSubnet;
   int subnetCtr = 0;
   for (String subnet in userEnteredSubnetAddresses)
   {
-    /* lines 95-103 seem to work correctly, but I do not think that this is the best way to do this. */
     addressesPerSubnet = subnet.split(', ');
-    if (addressesPerSubnet == [''])
+    if (addressesPerSubnet == [''] || addressesPerSubnet.length == 1)
       addressesPerSubnet = subnet.split(',');
-    if (addressesPerSubnet == [''])
+    if (addressesPerSubnet == [''] || addressesPerSubnet.length == 1)
       addressesPerSubnet = subnet.split(' ');
-    if (addressesPerSubnet == [''])
+    if (addressesPerSubnet == [''] || addressesPerSubnet.length == 1)
       allUserEnteredSubnetAddresses.add([subnetCtr.toString(), subnet]);
     else
       addressesPerSubnet.forEach((subnetAddr) => allUserEnteredSubnetAddresses.add([subnetCtr.toString(), subnetAddr]));
@@ -133,7 +129,14 @@ List<bool> checkSubnetAddresses(List<String> userEnteredSubnetAddresses)
     subnetCtr++;
   }
 
+}
+
+void buildListOfNetworkBroadcastAddressPairs(List<List<String>> allUserEnteredSubnetAddresses,
+                                             List<List<int>> networkAndBroadcastAddrs)
+{
+  // create list of network/broadcast address pairs for every entered subnet address
   int networkAddr = 0, broadcastAddr = 0, address = 0, subnetMask = 0, subnetNum = 0;
+  List<String> addressAndMask;
   for (int subnetAddrPos = 0; subnetAddrPos < allUserEnteredSubnetAddresses.length; subnetAddrPos++)
   {
     addressAndMask    =   allUserEnteredSubnetAddresses[subnetAddrPos][1].split('/'); // get subnet address and mask
@@ -147,9 +150,34 @@ List<bool> checkSubnetAddresses(List<String> userEnteredSubnetAddresses)
 
   // sort by network address so that we can see if the user entered subnet addresses overlap or not.
   networkAndBroadcastAddrs.sort((list0, list1) => list0[1].compareTo(list1[1]));
+}
 
+List<bool> checkSubnetAddresses(List<String> userEnteredSubnetAddresses, String allocatedIPAddrStr)
+{
+  List<bool> subnetsAreCorrect                        =   new List<bool>(userEnteredSubnetAddresses.length);
+  for (int subnetsAreCorrectPos = 0; subnetsAreCorrectPos <  userEnteredSubnetAddresses.length; subnetsAreCorrectPos++)
+    subnetsAreCorrect[subnetsAreCorrectPos] = true; // initialize everything to true
+  List<List<int>> networkAndBroadcastAddrs            =   new List<List<int>>(); // [ [subnetNumber, networkAddr, BroadcastAddr], ... ]
+  List<List<String>> allUserEnteredSubnetAddresses    =   new List<List<String>>(); // [ ['0', 'address0/mask'], ['0', 'address1/mask'], ['1', 'address2/mask'], ['2', 'address3/mask'] ]
+
+  buildListOfAllUserEnteredSubnetAddresses(userEnteredSubnetAddresses, allUserEnteredSubnetAddresses);
+
+  buildListOfNetworkBroadcastAddressPairs(allUserEnteredSubnetAddresses, networkAndBroadcastAddrs);
+
+  // make sure that subnet addresses do not overlap
   for (int addrPos = 0; addrPos < networkAndBroadcastAddrs.length - 1; addrPos++)
     if (networkAndBroadcastAddrs[addrPos][2] >= networkAndBroadcastAddrs[addrPos + 1][1])
+      subnetsAreCorrect[networkAndBroadcastAddrs[addrPos][0]] = false;
+
+  // make sure that user-entered subnet addresses are within range
+  List<String> ipAddrParts    =   allocatedIPAddrStr.split('/');
+  int allocatedIPAddr         =   convertDottedIPAddressStringToInteger(ipAddrParts[0]);
+  int allocatedIPAddrMask     =   int.parse(ipAddrParts[1]);
+  int allocatedNetworkAddr    =   allocatedIPAddr & ((0xFFFFFFFF >> (32 - allocatedIPAddrMask)) << (32 - allocatedIPAddrMask));
+  int allocatedBroadcastAddr  =   allocatedIPAddr | (0xFFFFFFFF >> allocatedIPAddrMask);
+  for (int addrPos = 0; addrPos < networkAndBroadcastAddrs.length; addrPos++)
+    if (networkAndBroadcastAddrs[addrPos][1] < allocatedNetworkAddr
+        || networkAndBroadcastAddrs[addrPos][2] > allocatedBroadcastAddr)
       subnetsAreCorrect[networkAndBroadcastAddrs[addrPos][0]] = false;
 
   return subnetsAreCorrect;

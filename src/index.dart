@@ -64,11 +64,13 @@ void main()
     String userEnteredBroadcastAddr               =   (querySelector('#broadcastAddr') as TextInputElement).value;
     String userEnteredNetworkAddr                 =   (querySelector('#networkAddr') as TextInputElement).value;
     String userEnteredNumOfIPs                    =   (querySelector('#numOfIPAddrs') as TextInputElement).value;
-    List<bool> userEnteredAnswersAreCorrect       =   checkAnswers(IPAddress, userEnteredBroadcastAddr, userEnteredNetworkAddr, userEnteredNumOfIPs);
+    List<bool> userEnteredAnswersAreCorrect       =   checkAnswers(IPAddress, userEnteredBroadcastAddr,
+                                                                   userEnteredNetworkAddr, userEnteredNumOfIPs);
     List<String> userEnteredSubnetAddresses       =   new List<String>(numOfSubnets);
     for (int subnetPos = 0; subnetPos < numOfSubnets; subnetPos++)
       userEnteredSubnetAddresses[subnetPos] = (querySelector('#subnetAddrField${subnetPos + 1}') as TextInputElement).value;
-    List<bool> userEnteredSubnetAddrsAreCorrect   =   checkSubnetAddresses(userEnteredSubnetAddresses);
+
+    List<bool> userEnteredSubnetAddrsAreCorrect   =   checkSubnetAddresses(userEnteredSubnetAddresses, IPAddress);
 
     if (userEnteredAnswersAreCorrect[2])
       (querySelector('#broadcastAddr') as TextInputElement).style.setProperty('background-color', 'lime');
